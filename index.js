@@ -15,11 +15,13 @@ module.exports = compose
  * @api public
  */
 function compose (middleware) {
-  if (!Array.isArray(middleware))
+  if (!Array.isArray(middleware)) {
     throw new TypeError('Middleware stack must be an array!')
+  }
   for (const fn of middleware) {
-    if (typeof fn !== 'function')
+    if (typeof fn !== 'function') {
       throw new TypeError('Middleware must be composed of functions!')
+    }
   }
 
   /**
@@ -32,12 +34,13 @@ function compose (middleware) {
     var i = 0
     var fn = middleware.reduceRight((pre, cur, index, array) => {
       return async () => {
-        return await cur(context, () => {
+        var vle = await cur(context, () => {
           if (++i > array.length) {
             throw new Error('next() called multiple times')
           }
-          return pre(context, array[index+1] || (() => {}))
+          return pre(context, array[index + 1] || (() => {}))
         })
+        return vle
       }
     }, next)
     return fn()
